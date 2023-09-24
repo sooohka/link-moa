@@ -3,16 +3,19 @@ import { SessionProvider } from "next-auth/react";
 import { type AppType } from "next/app";
 
 import { api } from "@/utils/api";
-import "@/styles/global.css"
+import "@/styles/global.css";
+import { OverlayProvider } from "@toss/use-overlay";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <SessionProvider session={session}>
-      <Component {...pageProps} />
-    </SessionProvider>
+    <OverlayProvider>
+      <SessionProvider session={session}>
+        <Component {...pageProps} />
+      </SessionProvider>
+    </OverlayProvider>
   );
 };
 
