@@ -4,7 +4,7 @@ import { type AppType } from "next/app";
 
 import { api } from "@/utils/api";
 import "@/styles/global.css";
-import { OverlayProvider } from "@toss/use-overlay";
+import OverlayProvider from "@/providers/OverlayProvider";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,

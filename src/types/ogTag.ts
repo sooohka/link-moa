@@ -1,8 +1,8 @@
-import type  { OgObject } from "open-graph-scraper/dist/lib/types";
+import type { ImageObject } from "open-graph-scraper/dist/lib/types";
 
 export type OgTag = {
-  title: OgObject["ogTitle"];
-  images: OgObject["ogImage"];
-  url: OgObject["ogUrl"];
-  description: OgObject["ogDescription"];
+  title:string;
+  images:ImageObject[]
+  url:string;
+  description:string;
 };

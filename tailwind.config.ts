@@ -48,6 +48,12 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      height: {
+        "100vh": "100vh",
+      },
+      minHeight: {
+        "100vh": "100vh",
+      },
       borderRadius: {
         lg: `var(--radius)`,
         md: `calc(var(--radius) - 2px)`,

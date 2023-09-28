@@ -30,7 +30,7 @@ interface Props {
 export function AddLinkDialog(props: Props) {
   const { isOpen, onClose } = props;
   const { onSubmitError } = useFormError();
-  const { mutate: searchOgTag } = api.og.lookup.useMutation({
+  const { mutate: searchOgTag } = api.og.get.useMutation({
     onSuccess: (og) => {
       setOgInfo(og);
     },
@@ -38,7 +38,7 @@ export function AddLinkDialog(props: Props) {
       setOgInfo(null);
     },
   });
-  const { mutateAsync: createOgTag } = api.og.create.useMutation({
+  const { mutateAsync: createOgTag } = api.links.create.useMutation({
     onSuccess: () => {
       onClose();
     },
@@ -60,6 +60,9 @@ export function AddLinkDialog(props: Props) {
 
   useEffect(() => {
     const s = setTimeout(() => {
+      if (!url) {
+        return;
+      }
       searchOgTag({ url });
     }, 500);
 
@@ -84,8 +87,8 @@ export function AddLinkDialog(props: Props) {
           </DialogHeader>
           <div className="flex flex-col gap-8 py-4">
             <div className="flex items-center gap-4">
-              <Label htmlFor="url" className="text-right">
-                Url
+              <Label htmlFor="url" className="flex-shrink-0 text-right">
+                링크:
               </Label>
               <Input {...register("url")} id="url" className="col-span-3" />
             </div>
@@ -115,7 +118,7 @@ export function AddLinkDialog(props: Props) {
             </Collapsible>
           </div>
           <DialogFooter>
-            <Button type="submit">save</Button>
+            <Button type="submit">저장</Button>
           </DialogFooter>
         </form>
       </DialogContent>
