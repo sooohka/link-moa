@@ -3,6 +3,7 @@
 import { cn } from "@/utils/style";
 import { Loader } from "lucide-react";
 import { ClientSafeProvider, signIn } from "next-auth/react";
+import Image from "next/image";
 import * as React from "react";
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   providers: ClientSafeProvider[];
@@ -25,11 +26,13 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           {isLoading ? (
             <Loader className="h-12 w-4 animate-spin" />
           ) : (
-            <img
+            <Image
               className="h-12 hover:opacity-80"
               alt=""
-              src={`/images/logo/btn_${provider.name}.png`}
-            ></img>
+              src={`/images/logo/btn_${provider.id}.png`}
+              width={200}
+              height={48}
+            ></Image>
           )}
         </button>
       ))}

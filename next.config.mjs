@@ -7,6 +7,10 @@ await import("./src/env.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
+  assetPrefix:
+    process.env.NODE_ENV === "production"
+      ? "https://d965mjo1ycxjs.cloudfront.net"
+      : undefined,
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
