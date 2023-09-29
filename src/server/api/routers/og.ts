@@ -8,8 +8,8 @@ const getOg = async (url: string) => {
   const { result } = await ogs({ url });
   return {
     title: result.ogTitle!,
-    images: result.ogImage!,
-    url: result.ogUrl,
+    images: result.ogImage,
+    url: result.ogUrl!,
     description: result.ogDescription,
   };
 };

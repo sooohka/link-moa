@@ -9,13 +9,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useFormError from "@/hooks/useFormError";
-import { OgTag } from "@/types/ogTag";
+import { OgRouterOutput } from "@/types/dto";
 import { api } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { AspectRatio } from "./ui/aspect-ratio";
+import LinkCard from "./LinkCard";
 import { Collapsible, CollapsibleContent } from "./ui/collapsible";
 
 const formType = z.object({
@@ -43,7 +43,7 @@ export function AddLinkDialog(props: Props) {
       onClose();
     },
   });
-  const [ogInfo, setOgInfo] = useState<OgTag | null>(null);
+  const [ogInfo, setOgInfo] = useState<OgRouterOutput["get"] | null>(null);
 
   const { register, handleSubmit, watch } = useForm<FormType>({
     defaultValues: {
@@ -95,24 +95,19 @@ export function AddLinkDialog(props: Props) {
             <Collapsible open={Boolean(ogInfo)}>
               <CollapsibleContent>
                 {ogInfo && (
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-[200px]">
-                      <AspectRatio>
-                        <img
-                          className="m-auto"
-                          alt=""
-                          src={ogInfo?.images?.[0]?.url}
-                          width={"100%"}
-                        ></img>
-                      </AspectRatio>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <h6 className="text-xl font-bold">{ogInfo.title}</h6>
-                      <p className="text-md line-clamp-3">
-                        {ogInfo.description}
-                      </p>
-                    </div>
-                  </div>
+                  <LinkCard
+                    isReadOnly
+                    link={{
+                      id: 0,
+                      url: ogInfo.url,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                      description: ogInfo.description ?? null,
+                      imagePath: ogInfo.images?.[0]?.url ?? null,
+                      title: ogInfo.title,
+                      userId: "",
+                    }}
+                  ></LinkCard>
                 )}
               </CollapsibleContent>
             </Collapsible>

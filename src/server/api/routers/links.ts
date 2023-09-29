@@ -2,7 +2,6 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { ogRouter } from "./og";
-import { OgTag } from "@/types/ogTag";
 
 export const linksRouter = createTRPCRouter({
   findAll: protectedProcedure.query(async ({ ctx }) => {
@@ -30,14 +29,14 @@ export const linksRouter = createTRPCRouter({
         });
       }
 
-      console.log(res);
       if (!res) {
         return;
       }
       await ctx.db.link.create({
         data: {
-          imagePath: res.images[0]?.url ?? "",
+          imagePath: res?.images?.[0]?.url,
           title: res.title,
+          description: res.description,
           url: input.url,
           userId: user.id,
         },
