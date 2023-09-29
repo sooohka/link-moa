@@ -10,8 +10,15 @@ const Page = () => {
   const { render } = useOverlay();
   const { status } = useSession();
   const { openErrorAlert } = useErrorAlert();
+  const linkCtx = api.useContext().links;
   const { data } = api.links.findAll.useQuery(undefined, {
     enabled: status === "authenticated",
+  });
+  const { mutate: deleteLink } = api.links.delete.useMutation({
+    onSuccess: () => {
+      linkCtx.findAll.invalidate();
+      // refetch
+    },
   });
 
   const handleAddNewLink = async () => {
@@ -19,6 +26,7 @@ const Page = () => {
       await openErrorAlert({
         title: "로그인 후 이용해주세요.",
       });
+      signIn();
       return;
     }
     await render(({ isOpen, close }) => (
@@ -34,7 +42,11 @@ const Page = () => {
   const handleLogin = () => {
     signIn();
   };
-  console.log(data);
+
+  const handleDelete = async (id: number) => {
+    deleteLink({ id });
+  };
+
   return (
     <main>
       <Header
@@ -49,12 +61,13 @@ const Page = () => {
         lg:grid-cols-4
       "
       >
-        {data?.map((link) => <LinkCard key={link.id} link={link}></LinkCard>)}
-        {data?.map((link) => <LinkCard key={link.id} link={link}></LinkCard>)}
-        {data?.map((link) => <LinkCard key={link.id} link={link}></LinkCard>)}
-        {data?.map((link) => <LinkCard key={link.id} link={link}></LinkCard>)}
-        {data?.map((link) => <LinkCard key={link.id} link={link}></LinkCard>)}
-        {data?.map((link) => <LinkCard key={link.id} link={link}></LinkCard>)}
+        {data?.map((link) => (
+          <LinkCard
+            key={link.id}
+            link={link}
+            onDelete={handleDelete}
+          ></LinkCard>
+        ))}
       </div>
     </main>
   );

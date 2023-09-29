@@ -1,3 +1,4 @@
+import { addLinkSchema } from "@/common/schema/link";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useErrorAlert from "@/hooks/useErrorAlert";
 import useFormError from "@/hooks/useFormError";
 import { OgRouterOutput } from "@/types/dto";
 import { api } from "@/utils/api";
@@ -18,10 +20,7 @@ import { z } from "zod";
 import LinkCard from "./LinkCard";
 import { Collapsible, CollapsibleContent } from "./ui/collapsible";
 
-const formType = z.object({
-  url: z.string().url().trim(),
-});
-type FormType = z.infer<typeof formType>;
+type FormType = z.infer<typeof addLinkSchema>;
 
 interface Props {
   isOpen: boolean;
@@ -30,7 +29,10 @@ interface Props {
 export function AddLinkDialog(props: Props) {
   const { isOpen, onClose } = props;
   const { onSubmitError } = useFormError();
-  const { mutate: searchOgTag } = api.og.get.useMutation({
+  const { openErrorAlert } = useErrorAlert();
+  const qc = api.useContext();
+
+  const { mutate: searchOgTag, isLoading } = api.og.get.useMutation({
     onSuccess: (og) => {
       setOgInfo(og);
     },
@@ -40,7 +42,12 @@ export function AddLinkDialog(props: Props) {
   });
   const { mutateAsync: createOgTag } = api.links.create.useMutation({
     onSuccess: () => {
+      qc.links.findAll.invalidate();
       onClose();
+    },
+    onError: async (e) => {
+      console.error(e);
+      await openErrorAlert({ title: e.message });
     },
   });
   const [ogInfo, setOgInfo] = useState<OgRouterOutput["get"] | null>(null);
@@ -49,7 +56,7 @@ export function AddLinkDialog(props: Props) {
     defaultValues: {
       url: "",
     },
-    resolver: zodResolver(formType),
+    resolver: zodResolver(addLinkSchema),
   });
   const url = watch("url");
 
@@ -60,10 +67,11 @@ export function AddLinkDialog(props: Props) {
 
   useEffect(() => {
     const s = setTimeout(() => {
-      if (!url) {
+      const parsed = addLinkSchema.safeParse({ url });
+      if (!parsed.success) {
         return;
       }
-      searchOgTag({ url });
+      searchOgTag(parsed.data);
     }, 500);
 
     return () => {
@@ -113,7 +121,9 @@ export function AddLinkDialog(props: Props) {
             </Collapsible>
           </div>
           <DialogFooter>
-            <Button type="submit">저장</Button>
+            <Button disabled={isLoading} type="submit">
+              저장
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

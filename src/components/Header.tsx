@@ -15,7 +15,7 @@ const Header = (props: Props) => {
     <header className="flex justify-between px-8 py-4">
       <div className="h-10 w-10">
         <Link href="/" legacyBehavior passHref>
-          <AspectRatio>
+          <AspectRatio className="flex cursor-pointer items-center justify-center">
             <Image src="/logo.png" alt="" width={40} height={40}></Image>
           </AspectRatio>
         </Link>

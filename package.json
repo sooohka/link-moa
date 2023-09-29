@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "db:push": "prisma db push",
     "dev": "next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
     "check-type": "tsc --noEmit",
     "start": "next start",
-    "db:ui": "prisma studio"
+    "dev:db:push": "dotenv -e .env.development.local prisma db push",
+    "dev:db:ui": "dotenv -e .env.development.local prisma studio",
+    "dev:db:migrate": "dotenv -e .env.development.local prisma migrate dev --name init && prisma generate",
+    "dev:db:reset": "dotenv -e .env.development.local prisma migrate reset && prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.1",
@@ -37,6 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "dotenv-cli": "^7.3.0",
     "eslint-plugin-react": "^7.33.2",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.279.0",

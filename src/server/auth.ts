@@ -9,6 +9,8 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "@/env.mjs";
 import { db } from "@/server/db";
+import { Account } from "@prisma/client";
+import { GoogleRefreshTokenResponse } from "@/types/auth";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -38,13 +40,46 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: async ({ session, user }) => {
+      const [google] = await db.account.findMany({
+        where: { userId: user.id, provider: "google" },
+      });
+      if (!google) {
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: user.id,
+          },
+        };
+      }
+      const isExpired =
+        !google.expires_at || google.expires_at * 1000 < Date.now();
+      if (isExpired) {
+        const refreshedGoogle = await refreshAccessToken(google);
+        await db.account.update({
+          where: {
+            provider_providerAccountId: {
+              provider: "google",
+              providerAccountId: google.providerAccountId,
+            },
+          },
+          data: {
+            access_token: refreshedGoogle.access_token,
+            expires_at: Math.floor(refreshedGoogle.accessTokenExpires / 1000),
+            refresh_token: refreshedGoogle.refresh_token,
+          },
+        });
+      }
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+        },
+      };
+    },
   },
   pages: {
     signIn: "/auth/signin",
@@ -54,6 +89,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
+      authorization: { params: { prompt: "consent", access_type: "offline" } },
     }),
     /**
      * ...add more providers here.
@@ -78,3 +114,51 @@ export const getServerAuthSession = (ctx: {
 }) => {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
+
+async function refreshAccessToken(token: Account) {
+  try {
+    if (!token.refresh_token) {
+      throw new Error("no refresh token");
+    }
+    const url =
+      "https://oauth2.googleapis.com/token?" +
+      new URLSearchParams({
+        client_id: env.GOOGLE_CLIENT_ID,
+        client_secret: env.GOOGLE_CLIENT_SECRET,
+        grant_type: "refresh_token",
+        refresh_token: token.refresh_token,
+      });
+
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      method: "POST",
+    });
+
+    const refreshedTokens =
+      (await response.json()) as GoogleRefreshTokenResponse;
+    console.log(refreshedTokens);
+
+    if (!response.ok) {
+      throw refreshedTokens;
+    }
+
+    return {
+      ...token,
+      accessToken: refreshedTokens.access_token,
+      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+      refreshToken: refreshedTokens.refresh_token ?? token.refresh_token, // Fall back to old refresh token
+    };
+  } catch (error) {
+    console.error(error);
+
+    return {
+      ...token,
+      accessToken: null,
+      accessTokenExpires: Date.now(),
+      refreshToken: null,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
