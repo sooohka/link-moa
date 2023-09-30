@@ -43,14 +43,14 @@ const LinkCard = (props: Props) => {
 
   return (
     <Card
-      className={cn({
+      className={cn("overflow-hidden", {
         "hvr-grow": !isReadOnly,
       })}
     >
       <a href={link.url} rel="noreferrer" target="_blank">
         <CardHeader>
           <CardTitle>{link.title}</CardTitle>
-          <CardDescription className="line-clamp-3 h-[60px] text-ellipsis">
+          <CardDescription className="text-sm line-clamp-3 h-[60px] text-ellipsis">
             {link.description}{" "}
           </CardDescription>
         </CardHeader>
