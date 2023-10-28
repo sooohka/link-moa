@@ -14,6 +14,8 @@ const config = {
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "@next/next/no-img-element": "off",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/ban-ts-comment": "warn",
   },
 };
 

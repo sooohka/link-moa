@@ -1,12 +1,9 @@
 import { UserAuthForm } from "@/components/UserAuthForm";
-import { authOptions } from "@/server/auth";
+import { getServerAuthSession } from "@/server/auth";
 import {
   GetServerSidePropsContext,
-  InferGetServerSidePropsType,
-  Metadata,
+  Metadata
 } from "next";
-import { getServerSession } from "next-auth";
-import { getProviders } from "next-auth/react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -14,21 +11,16 @@ export const metadata: Metadata = {
   description: "Authentication forms built using the components.",
 };
 
-export default function AuthenticationPage(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>,
-) {
-  const { providers } = props;
+export default function AuthenticationPage() {
   return (
     <>
-      <div className="min-h-100vh container flex h-full items-center justify-center">
+      <div className="container flex h-full min-h-100vh items-center justify-center">
         <div className="lg:p-8">
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
             <div className="flex flex-col space-y-2 text-center">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                로그인
-              </h1>
+              <h1 className="text-2xl font-semibold tracking-tight">로그인</h1>
             </div>
-            <UserAuthForm providers={Object.values(providers)} />
+            <UserAuthForm />
             <p className="px-8 text-center text-sm text-muted-foreground">
               By clicking continue, you agree to our{" "}
               <Link
@@ -54,7 +46,10 @@ export default function AuthenticationPage(
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const session = await getServerSession(context.req, context.res, authOptions);
+  const session = await getServerAuthSession({
+    req: context.req,
+    res: context.res,
+  });
 
   // If the user is already logged in, redirect.
   // Note: Make sure not to redirect to the same page
@@ -63,9 +58,5 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     return { redirect: { destination: "/" } };
   }
 
-  const providers = await getProviders();
-
-  return {
-    props: { providers: providers ?? [] },
-  };
+  return {};
 }

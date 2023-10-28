@@ -3,14 +3,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut, useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
+import { useAuth } from "@/context/auth";
 
 export function UserNav() {
-  const { data } = useSession();
+  const { user, signOut } = useAuth();
   const handleLogout = () => {
     signOut();
   };
@@ -19,22 +19,17 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            <AvatarImage
-              src={data?.user.image ?? ""}
-              alt={data?.user.name ?? ""}
-            />
-            <AvatarFallback>{data?.user.name}</AvatarFallback>
+            <AvatarImage src={user?.image ?? ""} alt={user?.name ?? ""} />
+            <AvatarFallback>{user?.name}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {data?.user.name}
-            </p>
+            <p className="text-sm font-medium leading-none">{user?.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {data?.user.email}
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>

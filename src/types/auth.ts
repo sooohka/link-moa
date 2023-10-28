@@ -6,3 +6,10 @@ export type GoogleRefreshTokenResponse = {
   token_type: string;
   id_token: string;
 };
+
+export type UserSession = {
+  id: string;
+  email: string;
+  image: string;
+  name: string;
+} | null;

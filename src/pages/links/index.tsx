@@ -1,14 +1,14 @@
 import { AddLinkDialog } from "@/components/AddLinkDialog";
 import Header from "@/components/Header";
 import LinkCard from "@/components/LinkCard";
+import { useAuth } from "@/context/auth";
 import useErrorAlert from "@/hooks/useErrorAlert";
 import useOverlay from "@/hooks/useOverlay";
 import { api } from "@/utils/api";
-import { signIn, useSession } from "next-auth/react";
 
 const Page = () => {
   const { render } = useOverlay();
-  const { status } = useSession();
+  const { signIn, status } = useAuth();
   const { openErrorAlert } = useErrorAlert();
   const linkCtx = api.useContext().links;
   const { data } = api.links.findAll.useQuery(undefined, {
@@ -49,11 +49,7 @@ const Page = () => {
 
   return (
     <main>
-      <Header
-        onAddLinkClick={handleAddNewLink}
-        onLoginClick={handleLogin}
-        isAuthenticated={status === "authenticated"}
-      />
+      <Header onAddLinkClick={handleAddNewLink} onLoginClick={handleLogin} />
       <div
         className="container grid w-full gap-4 px-4
         sm:grid-cols-1
