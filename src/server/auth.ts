@@ -41,9 +41,11 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     session: async ({ session, user }) => {
+      console.log(session);
       const [google] = await db.account.findMany({
         where: { userId: user.id, provider: "google" },
       });
+      //new user
       if (!google) {
         return {
           ...session,
@@ -53,6 +55,7 @@ export const authOptions: NextAuthOptions = {
           },
         };
       }
+      //old user
       const isExpired =
         !google.expires_at || google.expires_at * 1000 < Date.now();
       if (isExpired) {
