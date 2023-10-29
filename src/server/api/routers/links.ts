@@ -6,11 +6,11 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export const linksRouter = createTRPCRouter({
   findAll: protectedProcedure.query(async ({ ctx }) => {
-    const user = ctx.session.user;
+    const user_id = ctx.session.id;
 
     const findAll = ctx.db.link.findMany({
       where: {
-        userId: user.id,
+        userId: user_id,
       },
     });
     return findAll;
@@ -18,7 +18,7 @@ export const linksRouter = createTRPCRouter({
   create: protectedProcedure
     .input(z.object({ url: z.string().url() }))
     .mutation(async ({ input, ctx }) => {
-      const user = ctx.session.user;
+      const user_id = ctx.session.id;
       let res;
       try {
         const s = ogRouter.createCaller(ctx);
@@ -40,7 +40,7 @@ export const linksRouter = createTRPCRouter({
             title: res.title,
             description: res.description,
             url: input.url,
-            userId: user.id,
+            userId: user_id,
           },
         });
       } catch (e) {

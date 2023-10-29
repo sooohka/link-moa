@@ -3,14 +3,15 @@ import Link from "next/link";
 import { UserNav } from "./UserNav";
 import { AspectRatio } from "./ui/aspect-ratio";
 import { Button } from "./ui/button";
+import { useAuth } from "@/context/auth";
 
 interface Props {
   onAddLinkClick: () => Promise<void>;
   onLoginClick: () => void;
-  isAuthenticated: boolean;
 }
 const Header = (props: Props) => {
-  const { isAuthenticated, onAddLinkClick, onLoginClick } = props;
+  const { onAddLinkClick, onLoginClick } = props;
+  const { status, user } = useAuth();
   return (
     <header className="flex justify-between px-8 py-4">
       <div className="h-10 w-10">
@@ -24,7 +25,7 @@ const Header = (props: Props) => {
         <Button className="" variant="ghost" onClick={onAddLinkClick}>
           새 링크 추가하기
         </Button>
-        {isAuthenticated ? (
+        {status === "authenticated" ? (
           <UserNav></UserNav>
         ) : (
           <Button className="" variant="ghost" onClick={onLoginClick}>
